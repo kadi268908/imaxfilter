@@ -57,17 +57,20 @@ function renderMarkdownToHtml(text) {
     return token;
   });
 
-  // 2) Bold
+  // 2) Bold -> token
   out = out.replace(boldRe, (full, label) => {
     const token = makeToken("B");
     tokens.set(token, `<b>${escapeHtml(String(label).trim())}</b>`);
     return token;
   });
 
-  // 3) Italic
+  // 3) Italic -> token (keeps the prefix char)
   out = out.replace(italicRe, (full, prefix, label) => {
     const token = makeToken("I");
-    tokens.set(token, `${escapeHtml(String(prefix))}<i>${escapeHtml(String(label).trim())}</i>`);
+    tokens.set(
+      token,
+      `${escapeHtml(String(prefix))}<i>${escapeHtml(String(label).trim())}</i>`
+    );
     return token;
   });
 
