@@ -148,11 +148,19 @@ export function registerMessageHandlers(bot) {
           : looksLikeMarkdown(captionText)
             ? renderMarkdownToHtml(captionText)
             : captionText;
-        await ctx.replyWithPhoto(file_id, {
-          caption: renderedCaption || undefined,
-          parse_mode: "HTML",
-          reply_markup: replyMarkup ?? undefined,
-        });
+        try {
+          await ctx.replyWithPhoto(file_id, {
+            caption: renderedCaption || undefined,
+            parse_mode: "HTML",
+            reply_markup: replyMarkup ?? undefined,
+          });
+        } catch (err) {
+          // If HTML parse fails, still send caption + buttons.
+          await ctx.replyWithPhoto(file_id, {
+            caption: renderedCaption || undefined,
+            reply_markup: replyMarkup ?? undefined,
+          });
+        }
       } else if (type === "text") {
         // If the admin saved only button lines (no extra message text),
         // `text` can be empty. Still send something so buttons show up.
@@ -162,10 +170,17 @@ export function registerMessageHandlers(bot) {
           : looksLikeMarkdown(body)
             ? renderMarkdownToHtml(body)
             : body;
-        await ctx.reply(renderedBody, {
-          parse_mode: "HTML",
-          reply_markup: replyMarkup ?? undefined,
-        });
+        try {
+          await ctx.reply(renderedBody, {
+            parse_mode: "HTML",
+            reply_markup: replyMarkup ?? undefined,
+          });
+        } catch (err) {
+          // If HTML parse fails, still send message + buttons.
+          await ctx.reply(renderedBody, {
+            reply_markup: replyMarkup ?? undefined,
+          });
+        }
       }
     } catch (err) {
       console.error(`Failed to send filter response in group ${groupId}:`, err.message);

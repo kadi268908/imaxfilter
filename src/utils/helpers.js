@@ -24,7 +24,10 @@ export function buildInlineKeyboard(buttons) {
   if (!buttons || buttons.length === 0) return null;
   const kb = new InlineKeyboard();
   for (const btn of buttons) {
-    kb.url(btn.text, btn.url).row();
+    const url = String(btn.url ?? "").trim();
+    // Telegram requires valid URLs with a scheme (http/https). Normalize common short links.
+    const normalizedUrl = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(url) ? url : `https://${url}`;
+    kb.url(String(btn.text ?? ""), normalizedUrl).row();
   }
   return kb;
 }
