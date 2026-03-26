@@ -132,6 +132,14 @@ If you don't want the color tag, you can also use:
 
 Note: Telegram inline keyboard buttons **cannot be rendered with custom colors** via the Bot API. The `#primary/#success/#danger` tag is accepted by this bot’s parser, but it does not change the button’s UI color in Telegram.
 
+## Markdown support for filter messages
+
+In saved **text** and **photo captions**, you can use a small Markdown subset:
+
+- Links: `[label](https://example.com)`
+- Bold: `**bold text**`
+- Italic: `*italic text*`
+
 ## Data model (MongoDB collections)
 
 - **`filters`**: `{ group_id, keyword, response: { type, text, file_id, buttons } }`
