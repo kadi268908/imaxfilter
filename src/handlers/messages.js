@@ -39,6 +39,16 @@ function escapeHref(value) {
 function renderMarkdownToHtml(text) {
   if (!text) return "";
 
+  // Allow admins to escape markdown markers to keep literal `*` / `**`.
+  // Example:
+  //   \**AKIMAX PREMIUM PLANS\** -> displays **AKIMAX PREMIUM PLANS**
+  //   \*AKIMAX\* -> displays *AKIMAX*
+  const ESC_DSTAR = "__MD_ESC_DSTAR__";
+  const ESC_STAR = "__MD_ESC_STAR__";
+  const escapedText = String(text)
+    .replaceAll(/\\\*\\\*/g, ESC_DSTAR)
+    .replaceAll(/\\\*/g, ESC_STAR);
+
   const linkRe = /\[([^\]]+)]\(([^)]+)\)/g;
   const boldRe = /\*\*([^*]+)\*\*/g;
   const italicRe = /(^|[^*])\*([^*]+)\*(?!\*)/g;
@@ -49,7 +59,7 @@ function renderMarkdownToHtml(text) {
   const makeToken = (kind) => `__MD_${kind}_${tokenIndex++}__`;
 
   // 1) Markdown links
-  let out = text.replace(linkRe, (full, label, url) => {
+  let out = escapedText.replace(linkRe, (full, label, url) => {
     const token = makeToken("LINK");
     const href = escapeHref(url.trim());
     const safeLabel = escapeHtml(label.trim());
@@ -79,6 +89,10 @@ function renderMarkdownToHtml(text) {
   for (const [token, html] of tokens.entries()) {
     out = out.split(token).join(html);
   }
+
+  // Restore escaped markdown markers
+  out = out.split(ESC_DSTAR).join("**");
+  out = out.split(ESC_STAR).join("*");
 
   return out;
 }
