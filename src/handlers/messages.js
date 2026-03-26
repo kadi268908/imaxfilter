@@ -12,22 +12,6 @@ function looksLikeMarkdown(text) {
   );
 }
 
-function looksLikeHtml(text) {
-  // If admin already wrote HTML tags, we should not escape/transform them.
-  // Telegram supports limited HTML tags; we only need to detect common ones here.
-  return /<\s*\/?\s*(b|i|strong|em|a|code|pre|u|s|strike|br)\b[^>]*>/i.test(text);
-}
-
-function renderMarkdownLinksToHtmlOnly(text) {
-  if (!text) return "";
-  const linkRe = /\[([^\]]+)]\(([^)]+)\)/g;
-  return String(text).replace(linkRe, (full, label, url) => {
-    const href = escapeHref(url.trim());
-    const safeLabel = escapeHtml(label.trim());
-    return `<a href="${href}">${safeLabel}</a>`;
-  });
-}
-
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -143,44 +127,23 @@ export function registerMessageHandlers(bot) {
         await ctx.replyWithSticker(file_id);
       } else if (type === "photo" && file_id) {
         const captionText = text ?? "";
-        const renderedCaption = looksLikeHtml(captionText)
-          ? renderMarkdownLinksToHtmlOnly(captionText)
-          : looksLikeMarkdown(captionText)
-            ? renderMarkdownToHtml(captionText)
-            : captionText;
-        try {
-          await ctx.replyWithPhoto(file_id, {
-            caption: renderedCaption || undefined,
-            parse_mode: "HTML",
-            reply_markup: replyMarkup ?? undefined,
-          });
-        } catch (err) {
-          // If HTML parse fails, still send caption + buttons.
-          await ctx.replyWithPhoto(file_id, {
-            caption: renderedCaption || undefined,
-            reply_markup: replyMarkup ?? undefined,
-          });
-        }
+        const renderedCaption = looksLikeMarkdown(captionText)
+          ? renderMarkdownToHtml(captionText)
+          : captionText;
+        await ctx.replyWithPhoto(file_id, {
+          caption: renderedCaption || undefined,
+          parse_mode: "HTML",
+          reply_markup: replyMarkup ?? undefined,
+        });
       } else if (type === "text") {
         // If the admin saved only button lines (no extra message text),
         // `text` can be empty. Still send something so buttons show up.
         const body = text?.trim() ? text : "Choose an option:";
-        const renderedBody = looksLikeHtml(body)
-          ? renderMarkdownLinksToHtmlOnly(body)
-          : looksLikeMarkdown(body)
-            ? renderMarkdownToHtml(body)
-            : body;
-        try {
-          await ctx.reply(renderedBody, {
-            parse_mode: "HTML",
-            reply_markup: replyMarkup ?? undefined,
-          });
-        } catch (err) {
-          // If HTML parse fails, still send message + buttons.
-          await ctx.reply(renderedBody, {
-            reply_markup: replyMarkup ?? undefined,
-          });
-        }
+        const renderedBody = looksLikeMarkdown(body) ? renderMarkdownToHtml(body) : body;
+        await ctx.reply(body, {
+          parse_mode: "HTML",
+          reply_markup: replyMarkup ?? undefined,
+        });
       }
     } catch (err) {
       console.error(`Failed to send filter response in group ${groupId}:`, err.message);
