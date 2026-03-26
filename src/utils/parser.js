@@ -19,18 +19,20 @@ export function parseButtons(text) {
 
   for (const line of text.split("\n")) {
     BUTTON_REGEX.lastIndex = 0;
-    const match = BUTTON_REGEX.exec(line);
-    if (match) {
+    let hasButton = false;
+    let match;
+    while ((match = BUTTON_REGEX.exec(line)) !== null) {
+      hasButton = true;
       const [, btnText, color, url] = match;
-      const emoji = COLOR_EMOJI[color.toLowerCase()] ?? "🔵";
       buttons.push({
-        text: `${emoji} ${btnText.trim()}`,
+        // Telegram inline keyboard buttons don't support true colors.
+        // Keep text clean; we still parse `color` for potential future use.
+        text: btnText.trim(),
         url: url.trim(),
         color: color.toLowerCase(),
       });
-    } else {
-      cleanLines.push(line);
     }
+    if (!hasButton) cleanLines.push(line);
   }
 
   return {
