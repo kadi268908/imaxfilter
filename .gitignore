@@ -1,0 +1,29 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Logs / runtime output
+logs/
+*.log
+
+# Environment variables (keep example files)
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Coverage / build artifacts (add more if you create them)
+coverage/
+dist/
+build/
+
+# PM2 (usually not committed, but ignore if it appears in repo)
+.pm2/
+
