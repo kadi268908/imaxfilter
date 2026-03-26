@@ -18,6 +18,16 @@ function looksLikeHtml(text) {
   return /<\s*\/?\s*(b|i|strong|em|a|code|pre|u|s|strike|br)\b[^>]*>/i.test(text);
 }
 
+function renderMarkdownLinksToHtmlOnly(text) {
+  if (!text) return "";
+  const linkRe = /\[([^\]]+)]\(([^)]+)\)/g;
+  return String(text).replace(linkRe, (full, label, url) => {
+    const href = escapeHref(url.trim());
+    const safeLabel = escapeHtml(label.trim());
+    return `<a href="${href}">${safeLabel}</a>`;
+  });
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -134,7 +144,7 @@ export function registerMessageHandlers(bot) {
       } else if (type === "photo" && file_id) {
         const captionText = text ?? "";
         const renderedCaption = looksLikeHtml(captionText)
-          ? captionText
+          ? renderMarkdownLinksToHtmlOnly(captionText)
           : looksLikeMarkdown(captionText)
             ? renderMarkdownToHtml(captionText)
             : captionText;
@@ -148,7 +158,7 @@ export function registerMessageHandlers(bot) {
         // `text` can be empty. Still send something so buttons show up.
         const body = text?.trim() ? text : "Choose an option:";
         const renderedBody = looksLikeHtml(body)
-          ? body
+          ? renderMarkdownLinksToHtmlOnly(body)
           : looksLikeMarkdown(body)
             ? renderMarkdownToHtml(body)
             : body;
