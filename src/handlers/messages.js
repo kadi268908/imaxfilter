@@ -33,8 +33,11 @@ export function registerMessageHandlers(bot) {
           caption: text || undefined,
           reply_markup: replyMarkup ?? undefined,
         });
-      } else if (type === "text" && text) {
-        await ctx.reply(text, {
+      } else if (type === "text") {
+        // If the admin saved only button lines (no extra message text),
+        // `text` can be empty. Still send something so buttons show up.
+        const body = text?.trim() ? text : "Choose an option:";
+        await ctx.reply(body, {
           parse_mode: "HTML",
           reply_markup: replyMarkup ?? undefined,
         });

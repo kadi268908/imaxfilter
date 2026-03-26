@@ -121,7 +121,14 @@ When creating a filter response (text or photo caption), you can add button line
 [Support](buttonurl#danger://https://t.me/your_support)
 ```
 
-Supported colors: `primary`, `success`, `danger`.
+Supported colors (optional): `primary`, `success`, `danger`.
+
+If you don't want the color tag, you can also use:
+
+```
+[🍿 Check Premium Plans 🍿](buttonurl://t.me/akimaxsubsciptionbot?start=seller_SELPWDPHN)
+[📨 Help](buttonurl://t.me/ImaxSupport1Bot)
+```
 
 Note: Telegram inline keyboard buttons **cannot be rendered with custom colors** via the Bot API. The `#primary/#success/#danger` tag is accepted by this bot’s parser, but it does not change the button’s UI color in Telegram.
 
