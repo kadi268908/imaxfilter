@@ -12,6 +12,12 @@ function looksLikeMarkdown(text) {
   );
 }
 
+function looksLikeHtml(text) {
+  // If admin already wrote HTML tags, we should not escape/transform them.
+  // Telegram supports limited HTML tags; we only need to detect common ones here.
+  return /<\s*\/?\s*(b|i|strong|em|a|code|pre|u|s|strike|br)\b[^>]*>/i.test(text);
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -127,9 +133,11 @@ export function registerMessageHandlers(bot) {
         await ctx.replyWithSticker(file_id);
       } else if (type === "photo" && file_id) {
         const captionText = text ?? "";
-        const renderedCaption = looksLikeMarkdown(captionText)
-          ? renderMarkdownToHtml(captionText)
-          : captionText;
+        const renderedCaption = looksLikeHtml(captionText)
+          ? captionText
+          : looksLikeMarkdown(captionText)
+            ? renderMarkdownToHtml(captionText)
+            : captionText;
         await ctx.replyWithPhoto(file_id, {
           caption: renderedCaption || undefined,
           parse_mode: "HTML",
@@ -139,8 +147,12 @@ export function registerMessageHandlers(bot) {
         // If the admin saved only button lines (no extra message text),
         // `text` can be empty. Still send something so buttons show up.
         const body = text?.trim() ? text : "Choose an option:";
-        const renderedBody = looksLikeMarkdown(body) ? renderMarkdownToHtml(body) : body;
-        await ctx.reply(body, {
+        const renderedBody = looksLikeHtml(body)
+          ? body
+          : looksLikeMarkdown(body)
+            ? renderMarkdownToHtml(body)
+            : body;
+        await ctx.reply(renderedBody, {
           parse_mode: "HTML",
           reply_markup: replyMarkup ?? undefined,
         });
