@@ -143,7 +143,7 @@ In saved **text** and **photo captions**, you can use a small Markdown subset:
 To show literal `*` / `**` characters (no bold/italic), escape them with a backslash:
 
 ```
-\**AKIMAX PREMIUM PLANS\**   -> shows **AKIMAX PREMIUM PLANS**
+\**AKIMAX PREMIUM PLANS\**   -> shows **AKIMAX PREMIUM PLANS** (literal stars)
 \*AKIMAX\*                    -> shows *AKIMAX*
 ```
 

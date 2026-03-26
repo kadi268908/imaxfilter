@@ -45,9 +45,12 @@ function renderMarkdownToHtml(text) {
   //   \*AKIMAX\* -> displays *AKIMAX*
   const ESC_DSTAR = "__MD_ESC_DSTAR__";
   const ESC_STAR = "__MD_ESC_STAR__";
-  const escapedText = String(text)
-    .replaceAll(/\\\*\\\*/g, ESC_DSTAR)
-    .replaceAll(/\\\*/g, ESC_STAR);
+  // Note: users usually escape as `\**text\**` (one backslash before the first star).
+  // We must match that exact shape reliably.
+  let escapedText = String(text);
+  // Escape `\**` first so the `\*` regex doesn't partially match it.
+  escapedText = escapedText.replaceAll(/\\\*\*/g, ESC_DSTAR);
+  escapedText = escapedText.replaceAll(/\\\*/g, ESC_STAR);
 
   const linkRe = /\[([^\]]+)]\(([^)]+)\)/g;
   const boldRe = /\*\*([^*]+)\*\*/g;
